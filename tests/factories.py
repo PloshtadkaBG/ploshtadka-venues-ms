@@ -51,9 +51,6 @@ def make_user(
     return CurrentUser(
         id=user_id,
         username=f"user_{user_id}",
-        full_name="Test User",
-        email=f"user{user_id}@example.com",
-        is_active=is_active,
         scopes=scopes,
     )
 
@@ -63,12 +60,9 @@ def make_admin() -> CurrentUser:
     return CurrentUser(
         id=ADMIN_ID,
         username="admin",
-        full_name="Admin User",
-        email="admin@example.com",
-        is_active=True,
         scopes=[
             VenueScope.READ,
-            VenueScope.ADMIN,
+            "admin:scopes",
             VenueScope.ADMIN_READ,
             VenueScope.ADMIN_WRITE,
             VenueScope.ADMIN_DELETE,

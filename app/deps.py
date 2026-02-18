@@ -3,10 +3,11 @@ from functools import lru_cache
 from uuid import UUID
 
 import httpx
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, Header, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 
 from app import settings
+from app.scopes import VENUE_SCOPE_DESCRIPTIONS, VenueScope
 
 oauth2_scheme = OAuth2PasswordBearer(
     tokenUrl=f"{settings.users_ms_url}/auth/token",
@@ -14,6 +15,7 @@ oauth2_scheme = OAuth2PasswordBearer(
         "users:read": "Read users data.",
         "users:me": "Read current user profile.",
         "admin:scopes": "Manage user scopes.",
+        **VENUE_SCOPE_DESCRIPTIONS,
     },
 )
 
@@ -22,9 +24,6 @@ oauth2_scheme = OAuth2PasswordBearer(
 class CurrentUser:
     id: UUID
     username: str
-    full_name: str | None
-    email: str | None
-    is_active: bool
     scopes: list[str] = field(default_factory=list)
 
     @property
@@ -40,61 +39,27 @@ def _get_http_client() -> httpx.AsyncClient:
     )
 
 
-async def get_current_user(
-    token: str = Depends(oauth2_scheme),
+def get_current_user(
+    x_user_id: str = Header(...),
+    x_username: str = Header(...),
+    x_user_scopes: str = Header(default=""),
 ) -> CurrentUser:
     """
-    Calls GET /users/@me/get on the users-ms with the bearer token.
-    Returns a CurrentUser or raises 401.
+    Reads the headers injected by Traefik after forwardAuth validation.
+    The JWT has already been verified — we just trust these headers.
+    NOTE: This only works behind Traefik. Run with that assumption.
     """
-    credentials_exc = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
-
-    client = _get_http_client()
     try:
-        resp = await client.get(
-            "/users/@me/get",
-            headers={"Authorization": f"Bearer {token}"},
-        )
-    except httpx.RequestError as exc:
+        user_id = UUID(x_user_id)
+    except (ValueError, TypeError):
         raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail=f"Users service unreachable: {exc}",
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid user identity from gateway",
         )
 
-    if resp.status_code == status.HTTP_401_UNAUTHORIZED:
-        raise credentials_exc
+    scopes = x_user_scopes.split(" ") if x_user_scopes else []
 
-    if resp.status_code != status.HTTP_200_OK:
-        raise HTTPException(
-            status_code=status.HTTP_502_BAD_GATEWAY,
-            detail=f"Users service returned unexpected status {resp.status_code}",
-        )
-
-    data = resp.json()
-    return CurrentUser(
-        id=data["id"],
-        username=data["username"],
-        full_name=data.get("full_name"),
-        email=data.get("email"),
-        is_active=data.get("is_active", True),
-        scopes=data.get("scopes") or [],
-    )
-
-
-async def get_active_user(
-    current_user: CurrentUser = Depends(get_current_user),
-) -> CurrentUser:
-    """Rejects soft-deactivated accounts."""
-    if not current_user.is_active:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Your account has been deactivated",
-        )
-    return current_user
+    return CurrentUser(id=user_id, username=x_username, scopes=scopes)
 
 
 def require_scopes(*required: str):
@@ -108,7 +73,7 @@ def require_scopes(*required: str):
     """
 
     async def _dep(
-        current_user: CurrentUser = Depends(get_active_user),
+        current_user: CurrentUser = Depends(get_current_user),
     ) -> CurrentUser:
         missing = [s for s in required if s not in current_user.scopes]
         if missing:
@@ -126,3 +91,53 @@ async def require_admin(
 ) -> CurrentUser:
     """Shorthand for admin-only endpoints."""
     return current_user
+
+
+can_read_venues = require_scopes(VenueScope.READ)
+can_read_own_venues = require_scopes(VenueScope.ME)
+can_write_venue = require_scopes(VenueScope.WRITE)
+can_delete_venue = require_scopes(VenueScope.DELETE)
+can_manage_images = require_scopes(VenueScope.IMAGES)
+can_manage_schedule = require_scopes(VenueScope.SCHEDULE)
+can_admin_read = require_scopes(VenueScope.ADMIN_READ)
+can_admin_write = require_scopes(VenueScope.ADMIN_READ, VenueScope.ADMIN_WRITE)
+can_admin_delete = require_scopes(
+    VenueScope.ADMIN_READ,
+    VenueScope.ADMIN_WRITE,
+    VenueScope.ADMIN_DELETE,
+)
+
+
+def _owner_or_admin(owner_scope: VenueScope, admin_scope: VenueScope):
+    """
+    Returns a dependency that passes if the user has EITHER:
+      - the owner-level scope, OR
+      - the admin-level scope
+    Raises 403 otherwise.
+    """
+
+    async def _dep(
+        current_user: CurrentUser = Depends(get_current_user),
+    ) -> CurrentUser:
+        has_owner = owner_scope in current_user.scopes
+        has_admin = admin_scope in current_user.scopes
+
+        if not (has_owner or has_admin):
+            from fastapi import HTTPException, status
+
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=(
+                    f"Requires '{owner_scope}' (for your own venues) "
+                    f"or '{admin_scope}' (admin)."
+                ),
+            )
+        return current_user
+
+    return _dep
+
+
+can_write_or_admin = _owner_or_admin(VenueScope.WRITE, VenueScope.ADMIN_WRITE)
+can_delete_or_admin = _owner_or_admin(VenueScope.DELETE, VenueScope.ADMIN_DELETE)
+can_images_or_admin = _owner_or_admin(VenueScope.IMAGES, VenueScope.ADMIN_WRITE)
+can_schedule_or_admin = _owner_or_admin(VenueScope.SCHEDULE, VenueScope.ADMIN_WRITE)

@@ -3,15 +3,15 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, status
 
 from app.crud import assert_owns_venue, venue_unavailability_crud
-from app.deps import CurrentUser
+from app.deps import (
+    CurrentUser,
+    can_read_venues,
+    can_schedule_or_admin,
+)
 from app.schemas import (
     VenueUnavailabilityCreate,
     VenueUnavailabilityResponse,
     VenueUnavailabilityUpdate,
-)
-from app.scopes import (
-    can_read_venues,
-    can_schedule_or_admin,
 )
 
 router = APIRouter(

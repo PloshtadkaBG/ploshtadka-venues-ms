@@ -3,15 +3,15 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, status
 
 from app.crud import assert_owns_venue, venue_image_crud
-from app.deps import CurrentUser
+from app.deps import (
+    CurrentUser,
+    can_images_or_admin,
+    can_read_venues,
+)
 from app.schemas import (
     VenueImageCreate,
     VenueImageResponse,
     VenueImageUpdate,
-)
-from app.scopes import (
-    can_images_or_admin,
-    can_read_venues,
 )
 
 router = APIRouter(prefix="/{venue_id}/images", tags=["Venue Images"])

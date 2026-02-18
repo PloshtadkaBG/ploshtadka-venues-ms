@@ -9,9 +9,7 @@ import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
-from app.deps import get_active_user, get_current_user
-from app.routers.venue import router
-from app.scopes import (
+from app.deps import (
     can_admin_write,
     can_delete_or_admin,
     can_images_or_admin,
@@ -19,7 +17,9 @@ from app.scopes import (
     can_read_venues,
     can_schedule_or_admin,
     can_write_or_admin,
+    get_current_user,
 )
+from app.routers.venue import router
 
 from .factories import make_admin, make_user
 
@@ -48,7 +48,6 @@ def build_app(current_user) -> FastAPI:
         can_images_or_admin,
         can_schedule_or_admin,
         can_admin_write,
-        get_active_user,
         get_current_user,
     ):
         app.dependency_overrides[dep] = _user

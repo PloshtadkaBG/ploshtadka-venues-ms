@@ -3,7 +3,13 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, status
 
 from app.crud import venue_crud
-from app.deps import CurrentUser
+from app.deps import (
+    CurrentUser,
+    can_admin_write,
+    can_delete_or_admin,
+    can_read_venues,
+    can_write_or_admin,
+)
 from app.schemas import (
     VenueCreate,
     VenueFilters,
@@ -14,10 +20,6 @@ from app.schemas import (
 )
 from app.scopes import (
     VenueScope,
-    can_admin_write,
-    can_delete_or_admin,
-    can_read_venues,
-    can_write_or_admin,
 )
 
 router = APIRouter(prefix="/venues", tags=["venues"])
