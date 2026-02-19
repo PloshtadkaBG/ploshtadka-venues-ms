@@ -126,8 +126,6 @@ def _owner_or_admin(owner_scope: VenueScope, admin_scope: VenueScope):
         has_specific_admin = admin_scope in current_user.scopes
         has_admin = VenueScope.ADMIN in current_user.scopes
 
-        print(has_owner, has_specific_admin, has_admin)
-        print(has_owner or has_specific_admin or has_admin)
         if not (has_owner or has_specific_admin or has_admin):
             from fastapi import HTTPException, status
 

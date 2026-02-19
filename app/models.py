@@ -30,7 +30,7 @@ class Venue(Model):
     sport_types = fields.JSONField(default=list)  # List[SportType]
     status = fields.CharEnumField(VenueStatus, default=VenueStatus.PENDING_APPROVAL)
 
-    owner = fields.UUIDField()
+    owner_id = fields.UUIDField()
 
     # Location
     address = fields.CharField(max_length=500)
