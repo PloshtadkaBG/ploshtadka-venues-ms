@@ -100,8 +100,11 @@ can_delete_venue = require_scopes(VenueScope.DELETE)
 can_manage_images = require_scopes(VenueScope.IMAGES)
 can_manage_schedule = require_scopes(VenueScope.SCHEDULE)
 can_admin_read = require_scopes(VenueScope.ADMIN_READ)
-can_admin_write = require_scopes(VenueScope.ADMIN_READ, VenueScope.ADMIN_WRITE)
+can_admin_write = require_scopes(
+    VenueScope.ADMIN, VenueScope.ADMIN_READ, VenueScope.ADMIN_WRITE
+)
 can_admin_delete = require_scopes(
+    VenueScope.ADMIN,
     VenueScope.ADMIN_READ,
     VenueScope.ADMIN_WRITE,
     VenueScope.ADMIN_DELETE,
@@ -120,9 +123,12 @@ def _owner_or_admin(owner_scope: VenueScope, admin_scope: VenueScope):
         current_user: CurrentUser = Depends(get_current_user),
     ) -> CurrentUser:
         has_owner = owner_scope in current_user.scopes
-        has_admin = admin_scope in current_user.scopes
+        has_specific_admin = admin_scope in current_user.scopes
+        has_admin = VenueScope.ADMIN in current_user.scopes
 
-        if not (has_owner or has_admin):
+        print(has_owner, has_specific_admin, has_admin)
+        print(has_owner or has_specific_admin or has_admin)
+        if not (has_owner or has_specific_admin or has_admin):
             from fastapi import HTTPException, status
 
             raise HTTPException(

@@ -9,6 +9,7 @@ class VenueScope(StrEnum):
     IMAGES = "venues:images"
     SCHEDULE = "venues:schedule"
 
+    ADMIN = "admin:venues"
     ADMIN_READ = "admin:venues:read"
     ADMIN_WRITE = "admin:venues:write"
     ADMIN_DELETE = "admin:venues:delete"
