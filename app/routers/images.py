@@ -14,7 +14,7 @@ from app.schemas import (
     VenueImageUpdate,
 )
 
-router = APIRouter(prefix="/{venue_id}/images", tags=["Venue Images"])
+router = APIRouter(prefix="/venues/{venue_id}/images", tags=["Venue Images"])
 
 
 @router.get(

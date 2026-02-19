@@ -15,7 +15,7 @@ from app.schemas import (
 )
 
 router = APIRouter(
-    prefix="/{venue_id}/unavailabilities", tags=["Venue Unavailabilities"]
+    prefix="/venues/{venue_id}/unavailabilities", tags=["Venue Unavailabilities"]
 )
 
 

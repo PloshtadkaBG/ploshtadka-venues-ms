@@ -61,7 +61,6 @@ async def update_venue(
     payload: VenueUpdate,
     current_user: CurrentUser = Depends(can_write_or_admin),
 ):
-    # Admins can edit any venue; owners only their own.
     if VenueScope.ADMIN_WRITE in current_user.scopes:
         venue = await venue_crud.get_venue(venue_id)
         if not venue:
