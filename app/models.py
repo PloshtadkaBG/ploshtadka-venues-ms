@@ -1,10 +1,10 @@
-from enum import Enum
+from enum import StrEnum
 
 from ms_core import AbstractModel as Model
 from tortoise import fields
 
 
-class SportType(str, Enum):
+class SportType(StrEnum):
     FOOTBALL = "football"
     BASKETBALL = "basketball"
     TENNIS = "tennis"
@@ -15,7 +15,7 @@ class SportType(str, Enum):
     OTHER = "other"
 
 
-class VenueStatus(str, Enum):
+class VenueStatus(StrEnum):
     ACTIVE = "active"
     INACTIVE = "inactive"
     MAINTENANCE = "maintenance"

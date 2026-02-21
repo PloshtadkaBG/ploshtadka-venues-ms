@@ -1,6 +1,7 @@
 from decimal import Decimal
 
 import pytest
+from pydantic import ValidationError
 
 from app.schemas import (
     SportType,
@@ -49,7 +50,7 @@ class TestVenueCreateSchema:
         assert data.sport_types == [SportType.FOOTBALL, SportType.GYM]
 
     def test_name_too_short_raises(self):
-        with pytest.raises(Exception):
+        with pytest.raises(ValidationError):
             VenueCreate(
                 name="X",
                 description="Fine description.",
@@ -59,7 +60,7 @@ class TestVenueCreateSchema:
             )
 
     def test_negative_price_raises(self):
-        with pytest.raises(Exception):
+        with pytest.raises(ValidationError):
             VenueCreate(
                 name="Club",
                 description="Fine description.",
@@ -69,7 +70,7 @@ class TestVenueCreateSchema:
             )
 
     def test_capacity_zero_raises(self):
-        with pytest.raises(Exception):
+        with pytest.raises(ValidationError):
             VenueCreate(
                 name="Club",
                 description="Fine description.",
@@ -108,7 +109,7 @@ class TestWorkingHoursSchema:
             )
 
     def test_close_before_open_raises(self):
-        with pytest.raises(Exception):
+        with pytest.raises(ValidationError):
             VenueCreate(
                 name="Morning Club",
                 description="Opens early every day of the week.",
@@ -131,7 +132,7 @@ class TestVenueFiltersSchema:
         assert f.status == VenueStatus.ACTIVE
 
     def test_page_size_capped(self):
-        with pytest.raises(Exception):
+        with pytest.raises(ValidationError):
             VenueFilters(page_size=999)
 
 

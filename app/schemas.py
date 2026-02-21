@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime, time
 from decimal import Decimal
-from enum import Enum
+from enum import StrEnum
 from typing import Annotated, Any
 from uuid import UUID
 
@@ -16,7 +16,7 @@ from pydantic import (
 )
 
 
-class SportType(str, Enum):
+class SportType(StrEnum):
     FOOTBALL = "football"
     BASKETBALL = "basketball"
     TENNIS = "tennis"
@@ -27,7 +27,7 @@ class SportType(str, Enum):
     OTHER = "other"
 
 
-class VenueStatus(str, Enum):
+class VenueStatus(StrEnum):
     ACTIVE = "active"
     INACTIVE = "inactive"
     MAINTENANCE = "maintenance"
@@ -41,7 +41,7 @@ class DayHours(BaseModel):
     close: time
 
     @model_validator(mode="after")
-    def close_after_open(self) -> "DayHours":
+    def close_after_open(self) -> DayHours:
         if self.close <= self.open:
             raise ValueError("close time must be after open time")
         return self
@@ -100,7 +100,7 @@ class VenueUnavailabilityBase(BaseModel):
     reason: str | None = Field(default=None, max_length=255)
 
     @model_validator(mode="after")
-    def end_after_start(self) -> "VenueUnavailabilityBase":
+    def end_after_start(self) -> VenueUnavailabilityBase:
         if self.end_datetime <= self.start_datetime:
             raise ValueError("end_datetime must be after start_datetime")
         return self
@@ -120,10 +120,13 @@ class VenueUnavailabilityUpdate(BaseModel):
     reason: str | None = Field(default=None, max_length=255)
 
     @model_validator(mode="after")
-    def end_after_start(self) -> "VenueUnavailabilityUpdate":
-        if self.start_datetime and self.end_datetime:
-            if self.end_datetime <= self.start_datetime:
-                raise ValueError("end_datetime must be after start_datetime")
+    def end_after_start(self) -> VenueUnavailabilityUpdate:
+        if (
+            self.start_datetime
+            and self.end_datetime
+            and (self.end_datetime <= self.start_datetime)
+        ):
+            raise ValueError("end_datetime must be after start_datetime")
         return self
 
 
@@ -308,8 +311,11 @@ class VenueFilters(BaseModel):
     page_size: int = Field(default=20, ge=1, le=100)
 
     @model_validator(mode="after")
-    def price_range_sane(self) -> "VenueFilters":
-        if self.min_price is not None and self.max_price is not None:
-            if self.min_price > self.max_price:
-                raise ValueError("min_price must be ≤ max_price")
+    def price_range_sane(self) -> VenueFilters:
+        if (
+            self.min_price is not None
+            and self.max_price is not None
+            and (self.min_price > self.max_price)
+        ):
+            raise ValueError("min_price must be ≤ max_price")
         return self

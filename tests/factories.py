@@ -5,7 +5,7 @@ Import from here in every test file — never define dummy data inline.
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from uuid import UUID, uuid4
 
 from app.deps import CurrentUser
@@ -24,7 +24,7 @@ VENUE_ID: UUID = uuid4()
 IMAGE_ID: UUID = uuid4()
 UNAVAIL_ID: UUID = uuid4()
 
-NOW = datetime(2026, 6, 1, 10, 0, 0, tzinfo=timezone.utc)
+NOW = datetime(2026, 6, 1, 10, 0, 0, tzinfo=UTC)
 LATER = NOW + timedelta(hours=3)
 
 

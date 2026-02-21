@@ -55,7 +55,7 @@ def get_current_user(
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid user identity from gateway",
-        )
+        ) from None
 
     scopes = x_user_scopes.split(" ") if x_user_scopes else []
 

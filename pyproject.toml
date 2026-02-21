@@ -13,6 +13,28 @@ dependencies = [
     "python-jose[cryptography]>=3.3.0",
     "bcrypt>=4.2.0",
 ]
+[dependency-groups]
+dev = [
+    "pytest-cov>=6.0",
+    "ruff>=0.9",
+    "taskipy>=1.14",
+]
+
+[tool.taskipy.tasks]
+check = "bash scripts/check.sh"
+
+[tool.ruff]
+line-length = 88
+target-version = "py313"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+ignore = ["B008"]  # Depends() in FastAPI function defaults is intentional
+
+[tool.pytest.ini_options]
+addopts = "-v"
+testpaths = ["tests"]
+
 [tool.pyright]
 reportInvalidTypeForm = "none"
 
