@@ -29,7 +29,7 @@ uv run uvicorn main:application --host 0.0.0.0 --port 8001       # dev server
 
 ### API Structure
 
-- JWT authentication for protected endpoints
+- Header-based auth via Traefik header injection (no JWT validation in this service)
 - Structured error handling with custom exception handlers
 
 ### Testing Setup

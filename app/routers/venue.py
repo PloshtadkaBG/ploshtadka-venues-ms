@@ -7,7 +7,6 @@ from app.deps import (
     CurrentUser,
     can_admin_write,
     can_delete_or_admin,
-    can_read_venues,
     can_write_or_admin,
 )
 from app.schemas import (
@@ -27,7 +26,7 @@ router = APIRouter(prefix="/venues", tags=["venues"])
 
 @router.get(
     "/",
-    dependencies=[Depends(can_read_venues)],
+    # dependencies=[Depends(can_read_venues)],
 )
 async def list_venues(filters: VenueFilters = Depends()) -> list[VenueListItem]:
     return await venue_crud.list_venues(filters)
@@ -44,7 +43,7 @@ async def create_venue(
 @router.get(
     "/{venue_id}",
     response_model=VenueResponse,
-    dependencies=[Depends(can_read_venues)],
+    # dependencies=[Depends(can_read_venues)],
 )
 async def get_venue(venue_id: UUID):
     venue = await venue_crud.get_venue(venue_id)
