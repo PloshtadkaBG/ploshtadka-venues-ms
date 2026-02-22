@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from uuid import UUID
 
 from fastapi import HTTPException, status
@@ -189,7 +190,8 @@ class VenueCRUD(CRUD[Venue, VenueResponse]):  # type: ignore
             qs = qs.filter(city__icontains=filters.city)
         if filters.sport_type is not None:
             # for SQLite use a raw .filter() override
-            qs = qs.filter(sport_types__contains=filters.sport_type.value)
+            target_value = json.dumps(filters.sport_type.value)
+            qs = qs.filter(sport_types__contains=target_value)
         if filters.is_indoor is not None:
             qs = qs.filter(is_indoor=filters.is_indoor)
         if filters.has_parking is not None:
