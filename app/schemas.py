@@ -303,7 +303,7 @@ class VenueFilters(BaseModel):
     min_price: Decimal | None = Field(default=None, ge=0)
     max_price: Decimal | None = Field(default=None, ge=0)
     min_capacity: int | None = Field(default=None, ge=1)
-    status: VenueStatus | None = VenueStatus.ACTIVE
+    status: VenueStatus | None = None
     owner_id: UUID | None = None
 
     # Pagination
