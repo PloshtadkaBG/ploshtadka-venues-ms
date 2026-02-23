@@ -6,7 +6,6 @@ from app.crud import assert_owns_venue, venue_image_crud
 from app.deps import (
     CurrentUser,
     can_images_or_admin,
-    can_read_venues,
 )
 from app.schemas import (
     VenueImageCreate,
@@ -17,11 +16,7 @@ from app.schemas import (
 router = APIRouter(prefix="/venues/{venue_id}/images", tags=["Venue Images"])
 
 
-@router.get(
-    "",
-    response_model=list[VenueImageResponse],
-    dependencies=[Depends(can_read_venues)],
-)
+@router.get("", response_model=list[VenueImageResponse])
 async def list_images(venue_id: UUID):
     return await venue_image_crud.list_for_venue(venue_id)
 

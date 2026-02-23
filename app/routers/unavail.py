@@ -5,7 +5,6 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from app.crud import assert_owns_venue, venue_unavailability_crud
 from app.deps import (
     CurrentUser,
-    can_read_venues,
     can_schedule_or_admin,
 )
 from app.schemas import (
@@ -19,11 +18,7 @@ router = APIRouter(
 )
 
 
-@router.get(
-    "",
-    response_model=list[VenueUnavailabilityResponse],
-    dependencies=[Depends(can_read_venues)],
-)
+@router.get("", response_model=list[VenueUnavailabilityResponse])
 async def list_unavailabilities(venue_id: UUID):
     return await venue_unavailability_crud.list_for_venue(venue_id)
 

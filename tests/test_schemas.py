@@ -7,7 +7,6 @@ from app.schemas import (
     SportType,
     VenueCreate,
     VenueFilters,
-    VenueStatus,
     VenueUnavailabilityCreate,
 )
 
@@ -129,7 +128,7 @@ class TestVenueFiltersSchema:
         f = VenueFilters()
         assert f.page == 1
         assert f.page_size == 20
-        assert f.status == VenueStatus.ACTIVE
+        assert f.status is None
 
     def test_page_size_capped(self):
         with pytest.raises(ValidationError):
