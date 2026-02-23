@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 
 from app.crud import venue_crud
 from app.deps import (
@@ -38,6 +38,13 @@ async def create_venue(
     current_user: CurrentUser = Depends(can_write_or_admin),
 ):
     return await venue_crud.create_venue(payload, owner_id=current_user.id)
+
+
+@router.get("/bulk", response_model=list[VenueListItem])
+async def get_venues_bulk(
+    ids: list[UUID] = Query(..., min_length=1),
+) -> list[VenueListItem]:
+    return await venue_crud.get_venues_by_ids(ids)
 
 
 @router.get(

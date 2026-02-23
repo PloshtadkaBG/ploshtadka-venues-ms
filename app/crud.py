@@ -181,6 +181,32 @@ class VenueCRUD(CRUD[Venue, VenueResponse]):  # type: ignore
             return None
         return VenueResponse.model_validate(inst, from_attributes=True)
 
+    async def get_venues_by_ids(self, ids: list[UUID]) -> list[VenueListItem]:
+        venues = await Venue.filter(id__in=ids).prefetch_related("images")
+        results: list[VenueListItem] = []
+        for v in venues:
+            thumbnail = next(
+                (img.url for img in v.images if img.is_thumbnail),  # type: ignore[union-attr]
+                None,
+            )
+            results.append(
+                VenueListItem(
+                    id=v.id,
+                    name=v.name,
+                    city=v.city,
+                    sport_types=v.sport_types,
+                    status=VenueStatus(v.status),
+                    price_per_hour=v.price_per_hour,
+                    currency=v.currency,
+                    capacity=v.capacity,
+                    is_indoor=v.is_indoor,
+                    rating=v.rating,
+                    total_reviews=v.total_reviews,
+                    thumbnail=thumbnail,
+                )
+            )
+        return results
+
     async def list_venues(self, filters: VenueFilters) -> list[VenueListItem]:
         qs = Venue.all()
 
