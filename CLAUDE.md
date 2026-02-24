@@ -27,15 +27,6 @@ uv run uvicorn main:application --host 0.0.0.0 --port 8001       # dev server
 - **Database**: PostgreSQL with Tortoise ORM and Aerich migrations
 - **Testing**: pytest with custom markers and fixtures
 
-### API Structure
-
-- Header-based auth via Traefik header injection (no JWT validation in this service)
-- Structured error handling with custom exception handlers
-
-### Testing Setup
-
-- FastAPI test client for API testing
-
 ## Auth architecture — critical
 
 Auth is delegated entirely to Traefik via `forwardAuth`. The JWT is validated at the gateway; this service only reads the headers Traefik injects after a successful check:
