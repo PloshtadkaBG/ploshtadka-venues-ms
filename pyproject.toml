@@ -12,6 +12,7 @@ dependencies = [
     "tortoise-orm[asyncpg]>=0.21.7",
     "python-jose[cryptography]>=3.3.0",
     "bcrypt>=4.2.0",
+    "loguru>=0.7.3",
 ]
 [dependency-groups]
 dev = [
