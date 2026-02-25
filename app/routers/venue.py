@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
 
 from app.crud import venue_crud
 from app.deps import (
@@ -28,7 +28,10 @@ router = APIRouter(prefix="/venues", tags=["venues"])
     "/",
     # dependencies=[Depends(can_read_venues)],
 )
-async def list_venues(filters: VenueFilters = Depends()) -> list[VenueListItem]:
+async def list_venues(
+    response: Response, filters: VenueFilters = Depends()
+) -> list[VenueListItem]:
+    response.headers["Cache-Control"] = "public, max-age=30, stale-while-revalidate=60"
     return await venue_crud.list_venues(filters)
 
 
@@ -52,12 +55,13 @@ async def get_venues_bulk(
     response_model=VenueResponse,
     # dependencies=[Depends(can_read_venues)],
 )
-async def get_venue(venue_id: UUID):
+async def get_venue(venue_id: UUID, response: Response):
     venue = await venue_crud.get_venue(venue_id)
     if not venue:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Venue not found"
         )
+    response.headers["Cache-Control"] = "public, max-age=60, stale-while-revalidate=120"
     return venue
 
 
