@@ -70,6 +70,21 @@ tests/
 
 New router files placed in `app/routers/` are picked up automatically by `setup_app` — no manual registration needed.
 
+## Key formats
+
+**VenueStatus** enum: `pending` | `active` | `rejected` | `suspended`
+
+**`working_hours`** JSON (stored on Venue): weekday keys `"0"`–`"6"` (0=Monday), value `{open: "HH:MM", close: "HH:MM"}` or `null` for closed days.
+
+**`sport_types`**: JSON list of strings (e.g. `["football", "tennis"]`).
+
+## Cache headers
+
+`GET /venues/` — `Cache-Control: public, max-age=30`
+`GET /venues/{id}` — `Cache-Control: public, max-age=60`
+
+Set in the router. Downstream caches (Traefik/browser) serve stale data within the TTL — keep this in mind when testing updates.
+
 ## Adding a new resource
 
 1. Add Tortoise model to `app/models.py`
