@@ -228,6 +228,8 @@ class VenueCRUD(CRUD[Venue, VenueResponse]):  # type: ignore
             qs = qs.filter(price_per_hour__lte=filters.max_price)
         if filters.min_capacity is not None:
             qs = qs.filter(capacity__gte=filters.min_capacity)
+        if filters.owner_id is not None:
+            qs = qs.filter(owner_id=filters.owner_id)
 
         offset = (filters.page - 1) * filters.page_size
         qs = qs.offset(offset).limit(filters.page_size)
