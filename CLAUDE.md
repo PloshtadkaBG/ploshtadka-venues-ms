@@ -23,7 +23,7 @@ uv run uvicorn main:application --host 0.0.0.0 --port 8001       # dev server
 
 ### Technology Stack
 
-- **API Framework**: FastAPI with Gunicorn/Uvicorn
+- **API Framework**: FastAPI with Uvicorn
 - **Database**: PostgreSQL with Tortoise ORM and Aerich migrations
 - **Testing**: pytest with custom markers and fixtures
 
