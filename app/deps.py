@@ -1,5 +1,6 @@
 from dataclasses import dataclass, field
 from functools import lru_cache
+from urllib.parse import quote, unquote
 from uuid import UUID
 
 import httpx
@@ -59,7 +60,7 @@ def get_current_user(
 
     scopes = x_user_scopes.split(" ") if x_user_scopes else []
 
-    return CurrentUser(id=user_id, username=x_username, scopes=scopes)
+    return CurrentUser(id=user_id, username=unquote(x_username), scopes=scopes)
 
 
 def require_scopes(*required: str):

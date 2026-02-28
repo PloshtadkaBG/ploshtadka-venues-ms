@@ -33,7 +33,7 @@ Auth is delegated entirely to Traefik via `forwardAuth`. The JWT is validated at
 
 | Header          | Type   | Description                        |
 |-----------------|--------|------------------------------------|
-| `X-User-ID`     | UUID   | Authenticated user's ID            |
+| `X-User-Id`     | UUID   | Authenticated user's ID            |
 | `X-Username`    | string | Authenticated user's username      |
 | `X-User-Scopes` | string | Space-separated list of scopes     |
 
